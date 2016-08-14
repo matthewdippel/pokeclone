@@ -36,8 +36,7 @@ def reset(): #reset the game
     g.title_screen = titlescreen.TitleScreen(g) #initialize title screen
     g.update_func = g.title_screen.update #set update function
 
-def mainloop(): #main loop of the game
-    global g
+def mainloop(g): #main loop of the game
     running = True
     while running: #loop while we are still running
         for event in pygame.event.get(): #process events
@@ -93,7 +92,7 @@ try:
     map.load_data()
     g.save = savegame.SaveGame(g) #initialize a new savegame manager
     reset() #reset the game
-    mainloop() #start the main loop
+    mainloop(g) #start the main loop
 except error.QuitException: #if it was just a forced quit
     pass #don't do anything
 except Exception as e: #if it's any other exception

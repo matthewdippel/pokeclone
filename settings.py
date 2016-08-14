@@ -1,9 +1,9 @@
 from pygame.locals import * #import keymap
 
-screen_scale = 2 #scale factor of the screen before displaying
+screen_scale = 3 #scale factor of the screen before displaying
 screen_x = 256 #size of screen before scaling
 screen_y = 192
-framerate = 30 #framerate to keep
+framerate = 45 #framerate to keep
 
 keys = [-1, K_ESCAPE, K_UP, K_DOWN, K_LEFT, K_RIGHT, ord("x"), ord("p"), ord("z"),
 ord("j"), ord("k"), ord("i")] #array of keys
