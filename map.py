@@ -10,6 +10,19 @@ import data
 
 #class for a map tile layer
 class MapTileLayer:
+    """
+    stores information on a layer of map tiles
+
+    Attributes:
+        g               Container for global variables
+        map             Map object
+        tilemap         array of all the tiles on this layer
+        image           the pygame.Surface to draw on
+        layer_node      xml node containing map information
+        collisions      boolean indicating if this is a collisions layer
+        dirty           boolean indicating if this should be rendered next frame
+        anims           array of tile animations on this layer
+    """
     def __init__(self, g, map, layer_node):
         self.g = g #store globals
         self.map = map
@@ -54,8 +67,12 @@ class MapTileLayer:
                 self.tilemap[y][x] -= tile_offset #subtract tile offset from current tile
                 x += 1
             y += 1
-    #function to render the tilemap
+
     def render(self):
+        """
+        render the tilemap layer
+        :return:
+        """
         self.dirty = False #we've been rendered
         if self.collisions: #if this is a collisions surface
             return #we don't have to worry about rendering
@@ -85,6 +102,7 @@ class MapTileLayer:
                 prev[1].blit_tile(i, (x*16, y*16), tile-prev[0]) #draw tile
                 x += 1 #go to next tile
             y += 1 #go to next row
+
     #funtion to update the current image
     def update(self, camera, surf):
         if self.collisions: return
@@ -104,16 +122,20 @@ class MapTileLayer:
                 self.image.fill((0, 0, 0, 0), (t[0], (16, 16)))
                 t[4].blit_tile(self.image, t[0], t[3][t[1]][0][0], t[3][t[1]][0][1]) #draw the new tile
         return self.image #just return the current image
-        
+
+
 #class for an object layer
 class MapObjectLayer:
+
     def __init__(self, g, map, layer_node):
         self.g = g #store globals
         self.map = map
         self.objects = [] #list of objects on this layer
         self.map.obj_layer = self #store ourselves in the map
+
     def add_object(self, obj): #add an object to the render list
         self.objects.append(obj)
+
     def update(self, camera, surf):
         sprites = [] #list to hold sprites to draw
         for sprite in self.objects: #loop through object list
@@ -125,8 +147,10 @@ class MapObjectLayer:
         for sprite in sprites: #loop through sprites in sprite list
             sprite[1].draw(surf) #tell sprite to draw itself
 
+
 #class to manage a map
 class Map:
+
     def __init__(self, g, map_file):
         global tileset_anims
         self.g = g #store globals
@@ -175,8 +199,10 @@ class Map:
             child = child.nextSibling #get the next child to process it
         self.image = pygame.Surface((self.map_width*16, self.map_height*16)) #create a new surface to render on
         self.image.convert() #convert it to blit faster
+
     def add_object(self, obj): #add an object to the object layer
         self.obj_layer.add_object(obj) #tell our object layer to add the object
+
     #function to update the map
     def update(self, camera=None):
         if camera is None:
@@ -188,6 +214,7 @@ class Map:
             if surf is not None: #if a surface to draw was returned
                 self.image.blit(surf, camera.topleft, camera) #draw the result
         return self.image #return updated image
+
 
 def load_data(): #load tileset animation data
     global tileset_anims

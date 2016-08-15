@@ -1,11 +1,9 @@
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
-import pygame #import all of pygame
-from pygame.locals import *
-import math #import math library for part animation calculation
-
-import data
+import pygame
+from pygame import SRCALPHA as SRCALPHA
+import pokeclone.data as data
 
 class PartAnimationPart: #class for one part in the layout
 	def __init__(self, set_, g, dom): #create a part based on an element
@@ -50,6 +48,7 @@ class PartAnimationPart: #class for one part in the layout
 		self.size = set_.part_images[dom.getAttribute("from")][3]
 		self.orig_size = self.size
 		self.orig_show = self.show
+
 	def render(self): #render ourselves
 		if not self.show: return #return if we're not being shown
 		glBindTexture(GL_TEXTURE_2D, self.image)
@@ -69,6 +68,7 @@ class PartAnimationPart: #class for one part in the layout
 		glTexCoord2f(0.0, 1.0)
 		glVertex2f(0, 0)
 		glEnd()
+
 	def reset(self): #reset our state
 		self.pos = self.orig_pos[:]
 		self.rot = self.orig_rot
@@ -138,6 +138,7 @@ class PartAnimationGroup: #class for a layout group in a part animation
 		else:
 			#load the center
 			self.center = [int(x.strip()) for x in dom.getAttribute("center").split(",")]
+
 	def render(self): #render ourselves
 		if not self.show: return #return if we're not being shown
 		glTranslatef(self.pos[0]+self.center[0], self.pos[1]+self.center[1], 0)
@@ -148,6 +149,7 @@ class PartAnimationGroup: #class for a layout group in a part animation
 			glPushMatrix()
 			child.render()
 			glPopMatrix()
+
 	def reset(self): #reset our state
 		self.pos = self.orig_pos[:]
 		self.rot = self.orig_rot
@@ -158,7 +160,9 @@ class PartAnimationGroup: #class for a layout group in a part animation
 		for child in self.children:
 			child.reset()
 
+
 class PartAnimation: #class for one animation
+
 	def __init__(self, set_, dom): #initialize ourselves
 		self.set = set_ #store given parameters
 
@@ -216,11 +220,13 @@ class PartAnimation: #class for one animation
 					curr_cmd = curr_cmd.nextSibling #go to next command
 				self.frame_list.append([delay, cmds]) #add loaded data
 			curr_frame = curr_frame.nextSibling #go to next frame
+
 	def start(self): #start animation running
 		self.curr_frame = -1 #reset variables
 		self.wait = 0
 		self.tweens = []
 		self.update() #update once
+
 	def _process_frame(self, frame): #process tweens for a frame
 		self.tweens = [] #clear tween list
 		self.wait = frame[0] #initialize proper wait
@@ -252,6 +258,7 @@ class PartAnimation: #class for one animation
 				self.tweens.append([5, cmd[1], step, cmd[2]]) #add to list
 			elif cmd[0] == 6: #if it's a show command
 				self.set.parts[cmd[1]].show = cmd[2] #set show
+
 	def _update_tween(self, tween): #update a tween
 		if tween[0] == 1: #if it's a rotation tween
 			self.set.parts[tween[1]].rot += tween[2] #update rotation
@@ -264,6 +271,7 @@ class PartAnimation: #class for one animation
 			self.set.parts[tween[1]].xscale += tween[2] #update scale
 		elif tween[0] == 5: #yscale command
 			self.set.parts[tween[1]].yscale += tween[2] #update scale
+
 	def _finish_tween(self, tween): #finish up a tween command
 		if tween[0] == 1: #if it's a rotation tween
 			self.set.parts[tween[1]].rot = tween[3] #set end position
@@ -273,6 +281,7 @@ class PartAnimation: #class for one animation
 			self.set.parts[tween[1]].xscale = tween[3] #set final scale
 		elif tween[0] == 5: #yscale command
 			self.set.parts[tween[1]].yscale = tween[3] #set final scale
+
 	def update(self): #update animation
 		if self.wait == 0: #if this is the end of this frame
 			for tween in self.tweens: #go through tweens
@@ -287,8 +296,10 @@ class PartAnimation: #class for one animation
 			self._update_tween(tween) #update each of them
 		self.wait -= 1 #one frame has passed		
 
+
 #set of part animations from one file
 class PartAnimationSet:
+
 	def __init__(self, g, anim_file):
 		self.g = g #store given parameters
 
@@ -334,13 +345,16 @@ class PartAnimationSet:
 		for anim in anim_dom.getElementsByTagName("anim"): #load list of animations
 			#initialize and store an animation
 			self.animations[anim.getAttribute("id")] = PartAnimation(self, anim)
+
 	def set_animation(self, anim): #start a specific animation
 		self.layout.reset() #reset position of everything
 		self.curr_animation = self.animations[anim] #set animation
 		self.curr_animation.start() #start animation running
+
 	def update(self):
 		if self.curr_animation is not None: #if there's a current animation
 			self.curr_animation.update() #update current animation
+
 	def render(self, x, y):
 		#render out layout
 		glPopMatrix()
@@ -349,4 +363,3 @@ class PartAnimationSet:
 		self.layout.render()
 		glPopMatrix()
 		glPushMatrix()
-			
